@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-server-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: code-server
+  template:
+    metadata:
+      labels:
+        app: code-server
+    spec:
+      volumes:
+        - name: code-data
+          persistentVolumeClaim:
+            claimName: code-volume
+      containers:
+        - name: git-cloner
+          image: alpine/git
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              mkdir -p /home/coder/test1/testowy;
+              if [ ! -d /home/coder/test1/testowy/.git ]; then
+                git clone https://github.com/LostBeans/KubernetesTest.git /home/coder/test1/testowy;
+              fi;
+              sleep 3600;
+          volumeMounts:
+            - name: code-data
+              mountPath: /home/coder/test1/testowy
+        - name: code-server
+          image: codercom/code-server:latest
+          args:
+            - --host
+            - 0.0.0.0
+          env:
+            - name: PASSWORD
+              value: "test"
+          volumeMounts:
+            - name: code-data
+              mountPath: /home/coder/test1/testowy
+          ports:
+            - containerPort: 8080

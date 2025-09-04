@@ -1,0 +1,67 @@
+INSTALACJA:
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+chmod +x kubectl
+
+sudo mv kubectl /usr/local/bin/
+
+kubectl version --output=yaml
+
+
+apt update -qq && apt install -y \
+  libbtrfs-dev \
+  golang-github-containers-common \
+  git \
+  libassuan-dev \
+  libglib2.0-dev \
+  libc6-dev \
+  libgpgme-dev \
+  libgpg-error-dev \
+  libseccomp-dev \
+  libsystemd-dev \
+  libselinux1-dev \
+  pkg-config \
+  go-md2man \
+  crun \
+  libudev-dev \
+  software-properties-common \
+  gcc \
+  make
+  
+curl -fsSL https://download.opensuse.org/repositories/isv:/kubernetes:/addons:/cri-o:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
+
+echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/kubernetes:/addons:/cri-o:/stable:/v1.32/deb/ /" | sudo tee /etc/apt/sources.list.d/cri-o.list
+
+sudo apt update
+
+sudo apt install cri-o
+
+sudo systemctl start --now crio
+
+sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+
+
+sudo kubeadm init \
+  --pod-network-cidr=10.244.0.0/16 \
+  --cri-socket=unix:///var/run/crio/crio.sock
+
+
+sudo systemctl start kubelet
+
+
+sudo kubeadm join 10.0.0.118:6443 --token mvyn2l.sqnaearwahwjpps3 --discovery-token-ca-cert-hash sha256:17c4f780d13728fee3aeab5b91a4d09dfb86281fadb256d70bd6070a9bb354e1
+
+
+https://download.opensuse.org/repositories/isv:/kubernetes:/addons:/cri-o:/stable:/v1.32/deb/
+
+https://build.opensuse.org/project
+
+https://www.cherryservers.com/blog/install-kvm-ubuntu
+
+https://kubernetes.io/docs/concepts/services-networking/ingress/
